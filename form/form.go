@@ -77,6 +77,7 @@ type structEncoder struct {
 }
 
 func (se *structEncoder) encode(values *Values, v reflect.Value, keyParts []string, _ bool, _ *formOptions) {
+	fmt.Println("in encode")
 	for i, f := range se.fields {
 		var fieldKeyParts []string
 		fieldV := v.Field(f.index)
@@ -92,7 +93,11 @@ func (se *structEncoder) encode(values *Values, v reflect.Value, keyParts []stri
 			fieldKeyParts = append(keyParts, f.formName)
 		}
 
+		fmt.Println(f.formName)
+		fmt.Println(fieldV)
+		fmt.Println(se.fieldEncs[i])
 		se.fieldEncs[i](values, fieldV, fieldKeyParts, f.isPtr, f.options)
+		fmt.Println(values)
 		if f.isAppender && (!f.isPtr || !fieldV.IsNil()) {
 			fieldV.Interface().(Appender).AppendTo(values, fieldKeyParts)
 		}
@@ -318,9 +323,13 @@ func getCachedOrBuildTypeEncoder(t reflect.Type) encoderFunc {
 
 func intEncoder(values *Values, v reflect.Value, keyParts []string, encodeZero bool, options *formOptions) {
 	val := v.Int()
+	fmt.Println("intEncoder")
+	fmt.Println(val)
+	fmt.Println(encodeZero)
 	if val == 0 && !encodeZero {
 		return
 	}
+	fmt.Println("not returned")
 	values.Add(FormatKey(keyParts), strconv.FormatInt(val, 10))
 }
 
@@ -352,10 +361,13 @@ func mapEncoder(values *Values, v reflect.Value, keyParts []string, _ bool, _ *f
 }
 
 func stringEncoder(values *Values, v reflect.Value, keyParts []string, encodeZero bool, options *formOptions) {
+	fmt.Println("stringEnc")
 	val := v.String()
+	fmt.Println(val)
 	if val == "" && !encodeZero {
 		return
 	}
+	fmt.Println("not returned")
 	values.Add(FormatKey(keyParts), val)
 }
 
